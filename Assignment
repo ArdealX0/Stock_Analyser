@@ -1,0 +1,42 @@
+from flask import Flask, request, jsonify
+from textblob import TextBlob
+
+# Initialize Flask app
+app = Flask(__name__)
+
+# Function to determine sentiment score
+def analyze_sentiment(text):
+    # Create a TextBlob object
+    blob = TextBlob(text)
+    
+    # Getting the sentiment polarity (range -1 to 1)
+    polarity = blob.sentiment.polarity
+    
+    # Assign numerical values based on polarity
+    if polarity > 0:
+        return 1  # Positive sentiment
+    elif polarity < 0:
+        return -1  # Negative sentiment
+    else:
+        return 0  # Neutral sentiment
+
+@app.route('/analyze', methods=['POST'])
+def analyze_news():
+    # Get the JSON data from the request
+    data = request.get_json()
+
+    # Check if 'news' key exists in the input data
+    if 'news' not in data:
+        return jsonify({"error": "No news text provided"}), 400
+    
+    # Extract the news article text
+    news_text = data['news']
+    
+    # Analyze sentiment of the news
+    sentiment_value = analyze_sentiment(news_text)
+    
+    # Return the sentiment as a response
+    return jsonify({"sentiment": sentiment_value})
+
+if __name__ == '__main__':
+    app.run(debug=True)
