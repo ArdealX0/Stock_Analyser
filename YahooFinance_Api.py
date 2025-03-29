@@ -1,6 +1,6 @@
 import yfinance as yf
 
-def get_stock_details(ticker):
+def get_company_details(ticker):
     stock = yf.Ticker(ticker)
     info = stock.info
 
@@ -29,7 +29,6 @@ def get_stock_details(ticker):
         "Earnings Growth (YoY)": info.get("earningsGrowth"),
         "Total Revenue (Annual)": total_revenue,
         "Total Debt": total_debt,
-        "Next Earnings Date": earnings_date,
         "Sector": info.get("sector"),
         "Industry": info.get("industry"),
         "Analyst Recommendation": info.get("recommendationKey"),
