@@ -1,3 +1,5 @@
+import StockDataFetcher as fetcher
+
 class Stock:
     def __init__(self, symbol, price,price_change, financials, sentiment_Value):
         self.symbol = symbol
@@ -7,7 +9,7 @@ class Stock:
         self.sentiment_Value = sentiment_Value
 
     def set_current_price(self):
-        (self.price, self.price_change) = fetch_real_time_price(self.symbol)
+        (self.price, self.price_change) = fetcher.fetch_real_time_price(self.symbol)
     
     def get_current_price(self):
         return self.price, self.price_change
@@ -19,7 +21,7 @@ class Stock:
         return self.financials
     
     def set_financials(self, financials):
-        self.financials = fetch_financials(self.symbol)
+        self.financials = fetcher.fetch_financials(self.symbol)
 
     def get_sentiment(self):
         return self.sentiment_Value

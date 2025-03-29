@@ -1,6 +1,7 @@
 import yfinance as yf
+import requests 
 
-def get_company_details(ticker):
+def fetch_financials(ticker):
     stock = yf.Ticker(ticker)
     info = stock.info
 
@@ -36,13 +37,17 @@ def get_company_details(ticker):
 
     return details
 
-def main():
-    ticker = input("Enter stock ticker: ").upper()
-    details = get_stock_details(ticker)
-    
-    print(f"\nFinancial details for {ticker}:")
-    for key, value in details.items():
-        print(f"{key}: {value}")
+API_KEY = '8LKQHDEJY9AJ1ASK8LKQHDEJY9AJ1ASK'
 
-if __name__ == "__main__":
-    main()
+def fetch_real_time_price(ticker):
+
+    stock = ticker
+    url = f'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={stock}&apikey={API_KEY}'
+    r = requests.get(url)
+    data = r.json()
+
+    if "Global Quote" in data:
+        price = float(data["Global Quote"]["05. price"])
+        change = float(data["Global Quote"]["09. change"])
+
+    return (price, change)
