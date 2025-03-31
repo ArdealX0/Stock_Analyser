@@ -22,7 +22,6 @@ def main():
         symbol.set_sentiment_value()
         stocks.append(symbol)
 
-    print (stocks[0].symbol, stocks[0].get_current_price(), stocks[0].get_financials(), stocks[0].get_sentiment())
     print("Analyzing stocks... and creating a portfolio: ")
     create_portfolio(stocks, investment_amount)
     print("Portfolio created successfully!")
