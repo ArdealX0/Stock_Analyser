@@ -38,7 +38,6 @@ def fetch_financials(ticker):
     return details
 
 
-
 def fetch_real_time_price(ticker):
     API_KEY = 'QOQY4RBGGJSSQT87'
     
@@ -50,10 +49,7 @@ def fetch_real_time_price(ticker):
     if "Global Quote" in data:
         price = float(data["Global Quote"]["05. price"])
         change = float(data["Global Quote"]["09. change"])
-        print(price, change)
         return price, change
     else:
         print(f"Error getting data for {ticker}: {data}")
         return 0.0, 0.0
-
-print(fetch_real_time_price("AAPL"))

@@ -40,33 +40,32 @@ def create_portfolio(stocks, investment_amount):
         contents=f"""
         Here is the stocks information:
         Stock 1: {stocks[0].symbol}
-        Price: ${stocks[0].price}
-        Financials: {stocks[0].financials}
-        Market Sentiment: {stocks[0].sentiment_value}
+        Price: ${stocks[0].get_current_price()}
+        Financials: {stocks[0].get_financials()}
+        Market Sentiment: {stocks[0].get_sentiment()}
         Stock 2: {stocks[1].symbol}
-        Price: ${stocks[1].price}
-        Financials: {stocks[1].financials}
-        Market Sentiment: {stocks[1].sentiment_value}
+        Price: ${stocks[1].get_current_price()}
+        Financials: {stocks[1].get_financials()}
+        Market Sentiment: {stocks[1].get_sentiment()}
         Stock 3: {stocks[2].symbol}
-        Price: ${stocks[2].price}
-        Financials: {stocks[2].financials}
-        Market Sentiment: {stocks[2].sentiment_value}
+        Price: ${stocks[2].get_current_price()}
+        Financials: {stocks[2].get_financials()}
+        Market Sentiment: {stocks[2].get_sentiment()}
         Stock 4: {stocks[3].symbol}
-        Price: ${stocks[3].price}
-        Financials: {stocks[3].financials}
-        Market Sentiment: {stocks[3].sentiment_value}
+        Price: ${stocks[3].get_current_price()}
+        Financials: {stocks[3].get_financials()}
+        Market Sentiment: {stocks[3].get_sentiment()}
         Stock 5: {stocks[4].symbol}
-        Price: ${stocks[4].price}
-        Financials: {stocks[4].financials}
-        Market Sentiment: {stocks[4].sentiment_value}
+        Price: ${stocks[4].get_current_price()}
+        Financials: {stocks[4].get_financials()}
+        Market Sentiment: {stocks[4].get_sentiment()}
         Investment value = {investment_amount}
-        Create a portfolio with the above stocks and their respective investment amounts.
+        Create a portfolio with the above stocks and their respective investment amounts given in canadian dollars.
         The portfolio should be optimized for maximum returns based on the current market conditions and sentiment analysis.
-        The portfolio should also consider the risk tolerance of the investor.
-        The result should be in a table format with the following columns:
+        The result should only be in a table format with the following columns:
         1. Stock Symbol
         2. Investment Amount (CAD$)
-        3. Expected Return (CAD$)
+        After the table, provide a summary of the portfolio and reasoning using the provided data.
         """
     )
     print(response.text)
