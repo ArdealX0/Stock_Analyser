@@ -1,12 +1,16 @@
 import StockDataFetcher as fetcher
+import NewsFetcher as news
 
 class Stock:
-    def __init__(self, symbol, price,price_change, financials, sentiment_Value):
+
+    price = 0 
+    price_change = 0 
+    financials = 0 
+    sentiment_Value = 0
+    symbol = ""
+
+    def __init__(self, symbol):
         self.symbol = symbol
-        self.financials = financials
-        self.price = price
-        self.price_change = price_change
-        self.sentiment_Value = sentiment_Value
 
     def set_current_price(self):
         (self.price, self.price_change) = fetcher.fetch_real_time_price(self.symbol)
@@ -20,12 +24,12 @@ class Stock:
     def get_financials(self):
         return self.financials
     
-    def set_financials(self, financials):
+    def set_financials(self):
         self.financials = fetcher.fetch_financials(self.symbol)
 
     def get_sentiment(self):
         return self.sentiment_Value
     
     def set_sentiment_value(self):
-        self.sentiment_Value = analyse_sentiment(self.symbol)
+        self.sentiment_Value = news.analyze_sentiment(self.symbol)
 
