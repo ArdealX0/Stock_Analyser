@@ -9,9 +9,7 @@ def main():
     stock_symbols = stock_symbols.split(",")
     stock_symbols = [symbol.strip() for symbol in stock_symbols]
     
-    
-    print("Enter your investment amount (in CAD$):")
-    investment_amount = float(input())
+    investment_amount = float(input("Enter your investment amount (in CAD$):"))
 
     stocks = []
 
