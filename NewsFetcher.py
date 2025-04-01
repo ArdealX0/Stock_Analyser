@@ -176,10 +176,3 @@ def analyze_sentiment(ticker, news_api_key = "4e84117fe7c64dd4848bdc3c5834eadf",
     except Exception as e:
         print(f"Error: {e}")
         return None
-
-
-# Example Usage:
-if __name__ == "__main__":
-    ticker = "AAPL"
-    sentiment_summary = analyze_sentiment(ticker)
-    print(sentiment_summary)
