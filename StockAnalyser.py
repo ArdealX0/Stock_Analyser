@@ -9,7 +9,7 @@ def main():
     stock_symbols = stock_symbols.split(",")
     stock_symbols = [symbol.strip() for symbol in stock_symbols]
     
-    investment_amount = float(input("Enter your investment amount (in CAD$):"))
+    investment_amount = float(input("Enter your investment amount (in CAD$): $"))
 
     stocks = []
 
@@ -20,12 +20,12 @@ def main():
         symbol.set_sentiment_value()
         stocks.append(symbol)
 
-    print("Analyzing stocks... and creating a portfolio: ")
+    print("\nAnalyzing stocks... and creating a portfolio: ")
     create_portfolio(stocks, investment_amount)
-    print("Portfolio created successfully!")
-    print("Stock Analysis Complete.")
+    print("\nPortfolio created successfully!")
+    print("\nStock Analysis Complete.")
 
-    print("Exiting Stock Analyzer...")
+    print("\nExiting Stock Analyzer...")
 
 
 def create_portfolio(stocks, investment_amount):
@@ -63,10 +63,10 @@ def create_portfolio(stocks, investment_amount):
         1. Stock Symbol
         2. Investment Amount (CAD$)
         After the table, provide a summary of the portfolio and reasoning using the provided data.
+        and organise the table to make it look professional on a terminal.
         """
     )
     print(response.text)
         
-
 if __name__ == "__main__":
     main()
