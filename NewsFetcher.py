@@ -1,5 +1,7 @@
 import requests
 from datetime import datetime, timedelta
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import nltk
 
 class NewsFetcher:
     def __init__(self, api_key):
@@ -40,11 +42,12 @@ class NewsFetcher:
             api_response = response.json()
             articles = api_response.get('articles', [])
             
-            # Process articles into a format suitable for sentiment analysis
+            # Process articles to include title and content when available
             processed_articles = []
             for article in articles:
                 processed_article = {
                     'title': article.get('title', ''),
+                    'content': article.get('description', '')  # Use description as content
                 }
                 processed_articles.append(processed_article)
             
@@ -60,85 +63,56 @@ class NewsFetcher:
             raise Exception(error_message)
 
 
-class SentimentAnalyzer: 
-    def __init__(self, market_aux_api_key = "QzdP3EF5tLroBWmmqFy5Wpap2eW0nB1z5JBqxewX"):
-        self.market_aux_api_key = market_aux_api_key
+class SentimentAnalyzer:
+    def __init__(self):
+        try:
+            nltk.data.find('vader_lexicon')
+        except LookupError:
+            nltk.download('vader_lexicon')
+        
+        # Initialize VADER sentiment analyzer
+        self.analyzer = SentimentIntensityAnalyzer()
 
-    def analyze_title_sentiment(self, titles, ticker):
+    def analyze_sentiment(self, articles, ticker):
         """
-        Simulates sentiment of a list of article titles using keyword matching.
+        Analyzes sentiment of a list of articles using NLTK's VADER.
         """
         results = []
-        for title in titles:
-            result = self._simulate_sentiment_result(title, ticker)
+        for article in articles:
+            title = article['title']
+            content = article['content']
+            
+            # Combine title and content for better sentiment analysis
+            text = f"{title}. {content}"
+            
+            # Get sentiment scores
+            scores = self.analyzer.polarity_scores(text)
+            
+            # Determine sentiment label based on compound score
+            sentiment_label = self._get_sentiment_label(scores['compound'])
+            
+            result = {
+                'title': title,
+                'sentiment_score': scores['compound'],
+                'sentiment_label': sentiment_label,
+                'ticker': ticker.upper(),
+            }
             results.append(result)
+        
         return results
-
-    def _simulate_sentiment_result(self, title, ticker):
-        score = self._simulate_sentiment(title)
-        return {
-            'title': title,
-            'sentiment_score': score,
-            'sentiment_label': self._get_sentiment_label(score),
-            'ticker': ticker.upper(),
-        }
-
-    def _simulate_sentiment(self, text):
-        positive_words = [
-            'up', 'rise', 'growth', 'gain', 'profit', 'positive', 'bull', 'bullish', 'surge',
-            'soar', 'boom', 'rally', 'strong', 'success', 'upgrade', 'beat', 'buy', 'increase',
-            'record high', 'improved', 'outperform', 'resilient', 'favorable', 'expand', 'green',
-            'tops', 'higher', 'solid', 'best', 'optimistic', 'momentum', 'breakout', 'support',
-            'rebound', 'recovery', 'accelerate', 'bounce', 'stable', 'robust', 'milestone', 'buys',
-            'confidence', 'exceed', 'gains', 'bull market', 'earnings beat', 'raised forecast',
-            'guidance boost', 'growth outlook', 'dividend hike', 'cash flow', 'capital return',
-            'buyback', 'record revenue', 'record earnings', 'all-time high', 'net profit',
-            'margin expansion', 'upgraded', 'demand surge', 'price target increase', 'expansion',
-            'strategic partnership', 'acquisition', 'launch', 'strong sales', 'increased guidance',
-            'higher revenue', 'EPS beat', 'valuation boost', 'largest', 'boosted', 'added', 'lifted',
-            'increased stake', 'upped holding', 'grew position', 'major stake', 'top holding',
-            'largest position', 'raised position', 'new position', 'buying opportunity', 'bought'
-        ]
-
-        negative_words = [
-            'down', 'fall', 'drop', 'loss', 'decline', 'negative', 'bear', 'bearish', 'crash',
-            'plunge', 'bust', 'weak', 'poor', 'downgrade', 'miss', 'sell', 'decrease', 'record low',
-            'underperform', 'volatile', 'concern', 'fear', 'worry', 'uncertain', 'layoff', 'cut',
-            'slash', 'instability', 'recession', 'debt', 'losses', 'deteriorate', 'hit', 'struggle',
-            'collapse', 'bankruptcy', 'lawsuit', 'shortfall', 'warning', 'scandal', 'slowdown', 'sells',
-            'disappoint', 'headwind', 'pressure', 'profit miss', 'earnings miss', 'revenue miss',
-            'guidance cut', 'downgraded', 'job cuts', 'lower outlook', 'suspension', 'selloff',
-            'valuation drop', 'deficit', 'fraud', 'loss warning', 'missed expectations', 'sold',
-            'dividend cut', 'SEC investigation', 'cost overrun', 'trading halt', 'penalty',
-            'fine', 'market rout', 'default', 'net loss', 'credit downgrade', 'declining margins', 'smallest',
-            'decreased stake', 'cut position', 'reduced stake', 'lowered position', 'trimmed holding',
-            'sold off', 'stake cut', 'shares down', 'stock down', 'should you sell', 'pulling out', 'lowered', 
-            'risks', 'turmoil', 'uncertainty', 'sell-off', 'bear market',
-            'negative sentiment', 'negative outlook', 'poor performance', 'underperformance', 'disappointing', 
-        ]
-
-        text_lower = text.lower()
-        pos_count = sum(1 for word in positive_words if word in text_lower)
-        neg_count = sum(1 for word in negative_words if word in text_lower)
-
-        total = pos_count + neg_count
-        if total == 0:
-            return 0
-
-        return (pos_count - neg_count) / total
-
+    
     def _get_sentiment_label(self, score):
-        if score > 0.25:
+        if score > 0.05:
             return "positive"
-        elif score < -0.25:
+        elif score < -0.05:
             return "negative"
         else:
             return "neutral"
 
 
-def analyze_sentiment(ticker, news_api_key = "4e84117fe7c64dd4848bdc3c5834eadf", days = 30):
+def analyze_sentiment(ticker, news_api_key="4e84117fe7c64dd4848bdc3c5834eadf", days=30):
     """
-    Fetches news for a given ticker, analyzes sentiment, and returns the results as a dictionary.
+    Fetches news for a given ticker, analyzes sentiment using NLTK's VADER, and returns the results as a dictionary.
     """
     try:
         # Initialize the NewsFetcher
@@ -147,27 +121,40 @@ def analyze_sentiment(ticker, news_api_key = "4e84117fe7c64dd4848bdc3c5834eadf",
         # Fetch the news for the ticker
         articles = news_fetcher.fetch_news(ticker, days=days)
 
-        # Extract titles for sentiment analysis
-        titles = [article['title'] for article in articles]
-
         # Initialize the SentimentAnalyzer
         sentiment_analyzer = SentimentAnalyzer()
 
         # Analyze sentiment
-        sentiment_results = sentiment_analyzer.analyze_title_sentiment(titles, ticker)
+        sentiment_results = sentiment_analyzer.analyze_sentiment(articles, ticker)
 
         # Return sentiment results summary as a dictionary
         positive = sum(1 for result in sentiment_results if result['sentiment_label'] == 'positive')
         neutral = sum(1 for result in sentiment_results if result['sentiment_label'] == 'neutral')
         negative = sum(1 for result in sentiment_results if result['sentiment_label'] == 'negative')
+        
+        total = len(sentiment_results)
+        
+        # Handle case where no articles were found
+        if total == 0:
+            return {
+                'positive': 0,
+                'neutral': 0,
+                'negative': 0,
+                'positive_percentage': 0,
+                'neutral_percentage': 0,
+                'negative_percentage': 0,
+                'article_count': 0,
+                'message': 'No articles found for analysis'
+            }
 
         sentiment_summary = {
             'positive': positive,
             'neutral': neutral,
             'negative': negative,
-            'positive_percentage': positive / len(sentiment_results) * 100,
-            'neutral_percentage': neutral / len(sentiment_results) * 100,
-            'negative_percentage': negative / len(sentiment_results) * 100,
+            'positive_percentage': positive / total * 100,
+            'neutral_percentage': neutral / total * 100,
+            'negative_percentage': negative / total * 100,
+            'article_count': total
         }
 
         return sentiment_summary
