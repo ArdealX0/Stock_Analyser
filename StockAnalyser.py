@@ -1,5 +1,5 @@
 from StockClass import Stock
-from google import genai
+import google.generativeai as genai
 
 def main():
     print("Initializing Stock Analyzer...")
@@ -11,6 +11,11 @@ def main():
     
     investment_amount = float(input("Enter your investment amount (in CAD$): $"))
 
+    risk_tolerance = input("Enter your risk tolerance (low, medium, high): ").lower()
+    if risk_tolerance not in ["low", "medium", "high"]:
+        print("Invalid risk tolerance. Please enter 'low', 'medium', or 'high'.")
+        return
+
     stocks = []
 
     for symbol in stock_symbols:
@@ -21,20 +26,24 @@ def main():
         stocks.append(symbol)
 
     print("\nAnalyzing stocks... and creating a portfolio: ")
-    create_portfolio(stocks, investment_amount)
+    create_portfolio(stocks, investment_amount, risk_tolerance)
     print("\nPortfolio created successfully!")
     print("\nStock Analysis Complete.")
 
     print("\nExiting Stock Analyzer...")
 
 
-def create_portfolio(stocks, investment_amount):
+def create_portfolio(stocks, investment_amount, risk_tolerance):
     
-    client = genai.Client(api_key="AIzaSyACI6oQ57KxFUaptHV9-S5RNsDnG8VFR5s")
+    # Configure the API key
+    genai.configure(api_key="AIzaSyACI6oQ57KxFUaptHV9-S5RNsDnG8VFR5s")
+    
+    # Create a model instance
+    model = genai.GenerativeModel('gemini-1.5-flash')
 
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=f"""
+    # Generate content
+    response = model.generate_content(
+        f"""
         Here is the stocks information:
         Stock 1: {stocks[0].symbol}
         Price: ${stocks[0].get_current_price()}
@@ -57,6 +66,7 @@ def create_portfolio(stocks, investment_amount):
         Financials: {stocks[4].get_financials()}
         Market Sentiment: {stocks[4].get_sentiment()}
         Investment value = {investment_amount}
+        Risk tolerance = {risk_tolerance}
         Create a portfolio with the above stocks and their respective investment amounts given in canadian dollars.
         The portfolio should be optimized for maximum returns based on the current market conditions and sentiment analysis.
         The result should only be in a table format with the following columns:
