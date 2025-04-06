@@ -1,10 +1,9 @@
 import requests
 from datetime import datetime, timedelta
-import os
 
 class NewsFetcher:
     def __init__(self, api_key):
-        self.api_key = api_key or os.environ.get('NEWSAPI_KEY')
+        self.api_key = api_key
         if not self.api_key:
             raise ValueError("NewsAPI key must be provided or set as NEWSAPI_KEY environment variable")
         
@@ -63,7 +62,7 @@ class NewsFetcher:
 
 class SentimentAnalyzer: 
     def __init__(self, market_aux_api_key = "QzdP3EF5tLroBWmmqFy5Wpap2eW0nB1z5JBqxewX"):
-        self.market_aux_api_key = market_aux_api_key or os.environ.get('MARKET_AUX_API_KEY')
+        self.market_aux_api_key = market_aux_api_key
 
     def analyze_title_sentiment(self, titles, ticker):
         """
@@ -137,7 +136,7 @@ class SentimentAnalyzer:
             return "neutral"
 
 
-def analyze_sentiment(ticker, news_api_key = "4e84117fe7c64dd4848bdc3c5834eadf", days=30):
+def analyze_sentiment(ticker, news_api_key = "4e84117fe7c64dd4848bdc3c5834eadf", days = 30):
     """
     Fetches news for a given ticker, analyzes sentiment, and returns the results as a dictionary.
     """
