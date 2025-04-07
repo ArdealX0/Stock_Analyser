@@ -6,7 +6,24 @@ from io import StringIO
 from StockClass import Stock
 from StockDataFetcher import fetch_financials, fetch_real_time_price
 from NewsFetcher import NewsFetcher, SentimentAnalyzer, analyze_sentiment
-import StockAnalyser
+from StockAnalyser import main, validate_stocks_data
+
+class MockStock:
+        def __init__(self, symbol, price, change, financials, sentiment):
+            self.symbol = symbol
+            self._price = price
+            self._change = change
+            self._financials = financials
+            self._sentiment = sentiment
+
+        def get_current_price(self):
+            return self._price, self._change
+
+        def get_financials(self):
+            return self._financials
+
+        def get_sentiment(self):
+            return self._sentiment
 
 # Input validation helpers
 def is_valid_stock_symbol(symbol):
@@ -233,6 +250,19 @@ class TestNewsFetcher:
 
 # Test cases for StockAnalyser.py
 class TestStockAnalyser:
+    
+    def test_validate_stocks_data_invalid(self):
+
+        invalid_stocks = [
+        MockStock('AAPL', None, 2.5, {'revenue': 1000000, 'profit': 500000}, {'positive': 0.75}),  # Invalid price
+        MockStock('GOOG', 2800.0, None, {'revenue': 2000000, 'profit': 1000000}, {'neutral': 0.5}),  # Invalid change
+        MockStock('AMZN', 3400.0, 50.0, None, {'positive': 0.8}),  # Invalid financials
+        MockStock('MSFT', 299.0, 1.0, {'revenue': 4000000, 'profit': 2000000}, None),  # Invalid sentiment
+        ]
+        for stock in invalid_stocks:
+            valid, message = validate_stocks_data([stock])
+            assert valid == False, f"Expected invalid stock data for {stock.symbol}: {message}"
+
     def test_main_input_validation_bug(self):
         """Test that uncovers a bug in the main function's input validation."""
         # Bug: No validation for the number of stocks entered
@@ -245,7 +275,7 @@ class TestStockAnalyser:
         with patch('sys.stdin', StringIO(test_input)), patch('sys.stdout', StringIO()) as fake_output:
             try:
                 # This should ideally validate that 5 symbols are required
-                StockAnalyser.main()
+                main()
                 output = fake_output.getvalue()
                 
                 # If we got here without an error, that's the bug
