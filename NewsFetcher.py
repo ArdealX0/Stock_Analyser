@@ -65,10 +65,6 @@ class NewsFetcher:
 
 class SentimentAnalyzer:
     def __init__(self):
-        try:
-            nltk.data.find('vader_lexicon')
-        except LookupError:
-            nltk.download('vader_lexicon')
         
         # Initialize VADER sentiment analyzer
         self.analyzer = SentimentIntensityAnalyzer()
