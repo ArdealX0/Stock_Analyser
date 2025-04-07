@@ -61,12 +61,16 @@ def validate_stocks_data(stocks):
         sentiment = stock.get_sentiment()
         if not sentiment or not isinstance(sentiment, dict):
             return False, f"Invalid sentiment data for stock: {stock.symbol}"
+        
+        else:
+            return True, f"Stock {stock.symbol} is valid."
+    
 
 
 def create_portfolio(stocks, investment_amount, risk_tolerance):
 
     #Validate stocks data
-    valid, message = validate_stocks_data(stocks)
+    (valid, message) = validate_stocks_data(stocks)
     if not valid:
         print(f"Error: {message}")
         return
