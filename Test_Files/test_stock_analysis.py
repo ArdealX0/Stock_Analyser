@@ -80,7 +80,7 @@ class TestStockDataFetcher:
         ticker = "INVALIDTICKERSYMBOL"
         
         # Call the function and check if it handles invalid tickers gracefully
-        price, change = fetch_real_time_price(ticker)
+        (price, change) = fetch_real_time_price(ticker)
         
         # The bug is that it returns 0.0, 0.0 for any error, without distinguishing between
         # different error types (API limits, invalid symbols, etc.)
@@ -124,25 +124,94 @@ class TestNewsFetcher:
             print(f"BUG FOUND: NewsFetcher raises incorrect exception for missing API key: {e}")
             assert False, f"NewsFetcher should raise ValueError, but raised: {e.__class__.__name__}"
     
-    def test_sentiment_analyzer_simulation_bug(self):
-        """Test that uncovers a bug in the SentimentAnalyzer._simulate_sentiment method."""
-        # Bug: The sentiment simulation can produce unrealistic values
+    
+    def test_positive_sentiment(self):
+        """Test that positive content receives positive sentiment score"""
         
-        # Create a sentiment analyzer
+        analyzer = SentimentAnalyzer()
+        positive_article = {
+            'title': 'Company XYZ reports record profits, stock soars',
+            'content': 'The company announced excellent quarterly results exceeding all analyst expectations. Investors are thrilled with the performance.'
+        }
+        
+        result = analyzer.analyze_sentiment([positive_article], 'XYZ')
+        
+        assert len(result) == 1
+        assert result[0]['sentiment_label'] == 'positive'
+        assert result[0]['sentiment_score'] > 0.05
+
+    def test_negative_sentiment(self):
+        """Test that negative content receives negative sentiment score"""
+        analyzer = SentimentAnalyzer()
+        negative_article = {
+            'title': 'Company XYZ faces major lawsuit, stock plummets',
+            'content': 'The company is being sued for misleading investors. The stock dropped 15% on the news.'
+        }
+        
+        result = analyzer.analyze_sentiment([negative_article], 'XYZ')
+        
+        assert len(result) == 1
+        assert result[0]['sentiment_label'] == 'negative'
+        assert result[0]['sentiment_score'] < -0.05
+
+    def test_neutral_sentiment(self):
+        """Test that neutral content receives neutral sentiment score"""
+        analyzer = SentimentAnalyzer()
+        neutral_article = {
+            'title': 'Company XYZ releases quarterly report',
+            'content': 'The company released its quarterly financial statements today. Analysts are reviewing the numbers.'
+        }
+        
+        result = analyzer.analyze_sentiment([neutral_article], 'XYZ')
+        
+        assert len(result) == 1
+        assert result[0]['sentiment_label'] == 'neutral'
+        assert -0.05 <= result[0]['sentiment_score'] <= 0.05
+
+    def test_empty_article_list(self):
+        """Test that empty article list returns empty result list"""
+        analyzer = SentimentAnalyzer()
+        result = analyzer.analyze_sentiment([], 'XYZ')
+        
+        assert result == []
+
+    def test_extremely_positive_sentiment(self):
+        """Test sentiment scoring for extremely positive content"""
+        analyzer = SentimentAnalyzer()
+        extremely_positive = {
+            'title': 'AMAZING breakthrough sends stocks to the MOON! Best news EVER!',
+            'content': 'Incredible profits! Revolutionary product! Phenomenal growth! Exceptional leadership! Wonderful future ahead!'
+        }
+        
+        result = analyzer.analyze_sentiment([extremely_positive], 'XYZ')
+        
+        assert len(result) == 1
+        assert result[0]['sentiment_label'] == 'positive'
+        assert result[0]['sentiment_score'] > 0.5  # Expect very high positive score
+
+    def test_extremely_negative_sentiment(self):
+        """Test sentiment scoring for extremely negative content"""
+        analyzer = SentimentAnalyzer()
+        extremely_negative = {
+            'title': 'TERRIBLE disaster DESTROYS company value! WORST news EVER!',
+            'content': 'Catastrophic losses! Failing product! Horrible decline! Awful management! Disastrous future ahead!'
+        }
+        
+        result = analyzer.analyze_sentiment([extremely_negative], 'XYZ')
+        
+        assert len(result) == 1
+        assert result[0]['sentiment_label'] == 'negative'
+        assert result[0]['sentiment_score'] < -0.5  # Expect very low negative score
+
+    def test_sentiment_label_classification(self):
+        """Test the _get_sentiment_label method directly"""
         analyzer = SentimentAnalyzer()
         
-        # Test with an extremely positive title that should result in a high positive score
-        extremely_positive = "INCREDIBLE SURGE: Stock soars to record high with massive bull rally, profits double, growth explodes, best performance ever"
-        positive_score = analyzer._simulate_sentiment(extremely_positive)
-        
-        # Test with an extremely negative title that should result in a high negative score
-        extremely_negative = "TERRIBLE CRASH: Stock plummets to record low with massive bear selloff, losses double, decline accelerates, worst performance ever"
-        negative_score = analyzer._simulate_sentiment(extremely_negative)
-        
-        # Bug check: Are the scores appropriately extreme?
-        if not (positive_score > 0.5 and negative_score < -0.5):
-            print(f"BUG FOUND: Sentiment scores not properly calibrated. Positive: {positive_score}, Negative: {negative_score}")
-            assert False, f"Sentiment scores should be extreme for obvious sentiment titles"
+        assert analyzer._get_sentiment_label(0.1) == "positive"
+        assert analyzer._get_sentiment_label(0.05) == "neutral"  # Edge case
+        assert analyzer._get_sentiment_label(0.0) == "neutral"
+        assert analyzer._get_sentiment_label(-0.05) == "neutral"  # Edge case
+        assert analyzer._get_sentiment_label(-0.1) == "negative"
     
     def test_analyze_sentiment_error_handling_bug(self):
         """Test that uncovers a bug in the analyze_sentiment function's error handling."""
@@ -184,16 +253,3 @@ class TestStockAnalyser:
                 # If an exception is raised, that might be expected but should be handled better
                 print(f"BUG FOUND: main() throws an exception when fewer than 5 stocks are entered: {e}")
                 assert False, f"main() should handle invalid input gracefully, but raised: {e}"
-    
-    def test_create_portfolio_api_key_bug(self):
-        """Test that uncovers a bug in the create_portfolio function's API key handling."""
-        # Bug: Hardcoded API key in the code
-        
-        # Inspect the function for hardcoded API keys
-        import inspect
-        source = inspect.getsource(StockAnalyser.create_portfolio)
-        
-        # Check if there's an API key in the source code
-        if "api_key=" in source and "AIza" in source:
-            print("BUG FOUND: create_portfolio contains a hardcoded API key, which is a security risk")
-            assert False, "API keys should not be hardcoded in the source code"

@@ -8,8 +8,14 @@ def main():
     stock_symbols = input("Enter any of 5 stock symbols separated by commas: ").upper()   
     stock_symbols = stock_symbols.split(",")
     stock_symbols = [symbol.strip() for symbol in stock_symbols]
+    while len(stock_symbols) != 5:
+        stock_symbols = input("Please enter exactly 5 stock symbols.")
+        stock_symbols = stock_symbols.split(",")
+        stock_symbols = [symbol.strip() for symbol in stock_symbols]
     
     investment_amount = float(input("Enter your investment amount (in CAD$): $"))
+    while investment_amount <= 0 & type(investment_amount) != float:
+        investment_amount = input("Please enter a valid investment amount (in CAD$): $")
 
     risk_tolerance = input("Enter your risk tolerance (low, medium, high): ").lower()
     if risk_tolerance not in ["low", "medium", "high"]:
@@ -33,10 +39,10 @@ def main():
     print("\nExiting Stock Analyzer...")
 
 
-def create_portfolio(stocks, investment_amount, risk_tolerance):
+def create_portfolio(stocks, investment_amount, risk_tolerance, api_key="AIzaSyACI6oQ57KxFUaptHV9-S5RNsDnG8VFR5s"):
     
     # Configure the API key
-    genai.configure(api_key="AIzaSyACI6oQ57KxFUaptHV9-S5RNsDnG8VFR5s")
+    genai.configure(api_key)
     
     # Create a model instance
     model = genai.GenerativeModel('gemini-1.5-flash')
@@ -46,23 +52,23 @@ def create_portfolio(stocks, investment_amount, risk_tolerance):
         f"""
         Here is the stocks information:
         Stock 1: {stocks[0].symbol}
-        Price: ${stocks[0].get_current_price()}
+        Price and change from previous close: ${stocks[0].get_current_price()}
         Financials: {stocks[0].get_financials()}
         Market Sentiment: {stocks[0].get_sentiment()}
         Stock 2: {stocks[1].symbol}
-        Price: ${stocks[1].get_current_price()}
+        Price and change from previous close: ${stocks[1].get_current_price()}
         Financials: {stocks[1].get_financials()}
         Market Sentiment: {stocks[1].get_sentiment()}
         Stock 3: {stocks[2].symbol}
-        Price: ${stocks[2].get_current_price()}
+        Price and change from previous close: ${stocks[2].get_current_price()}
         Financials: {stocks[2].get_financials()}
         Market Sentiment: {stocks[2].get_sentiment()}
         Stock 4: {stocks[3].symbol}
-        Price: ${stocks[3].get_current_price()}
+        Price and change from previous close: ${stocks[3].get_current_price()}
         Financials: {stocks[3].get_financials()}
         Market Sentiment: {stocks[3].get_sentiment()}
         Stock 5: {stocks[4].symbol}
-        Price: ${stocks[4].get_current_price()}
+        Price and change from previous close: ${stocks[4].get_current_price()}
         Financials: {stocks[4].get_financials()}
         Market Sentiment: {stocks[4].get_sentiment()}
         Investment value = {investment_amount}
