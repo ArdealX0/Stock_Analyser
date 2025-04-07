@@ -16,7 +16,7 @@ class Stock:
         (self.price, self.price_change) = fetcher.fetch_real_time_price(self.symbol)
     
     def get_current_price(self):
-        return self.price, self.price_change
+        return (self.price, self.price_change)
     
     def get_symbol(self):
         return self.symbol
