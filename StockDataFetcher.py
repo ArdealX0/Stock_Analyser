@@ -56,11 +56,11 @@ def fetch_real_time_price(ticker):
             # Handle API limit reached
             return {"error": f"API limit reached: {data['Note']}"}, 0.0
         else:
-            return 0.0, 0.0
+            return {"error": f"Invalid ticker or no data for {ticker}"}, 0.0
     except RequestException as e:
-        return 0.0, 0.0
+        return {"error": f"Request error for {ticker}: {str(e)}"}, 0.0
     except Exception as e:
-        return 0.0, 0.0
+        return {"error": f"Unexpected error for {ticker}: {str(e)}"}, 0.0
 
 def validate_ticker(ticker):
     """

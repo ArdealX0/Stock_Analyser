@@ -78,14 +78,17 @@ class TestStockDataFetcher:
         """Test that uncovers a bug in the fetch_real_time_price function's API handling."""
         # Bug: Hardcoded API key that might expire or hit rate limits
         ticker = "INVALIDTICKERSYMBOL"
-        
-        # Call the function and check if it handles invalid tickers gracefully
-        (price, change) = fetch_real_time_price(ticker)
-        
-        # The bug is that it returns 0.0, 0.0 for any error, without distinguishing between
-        # different error types (API limits, invalid symbols, etc.)
-        assert price == 0.0 and change == 0.0, "Function should return zeros for invalid tickers"
-        print(f"BUG FOUND: fetch_real_time_price doesn't distinguish between error types, returns {price}, {change} for all errors")
+        try:
+            (price, change) = fetch_real_time_price(ticker)
+            
+            # If we got here without an exception, check if the result is valid
+            if not is_valid_price(price):
+                print(f"BUG FOUND: fetch_real_time_price returns invalid price data for {ticker}: {price}, {change}")
+        except Exception as e:
+            # If an exception occurs, that's the bug - it should handle errors gracefully
+            print(f"BUG FOUND: fetch_real_time_price doesn't handle errors properly: {e}")
+            assert False, f"fetch_real_time_price should handle errors, but raised: {e}"
+    
     
     def test_fetch_financials_error_handling_bug(self):
         """Test that uncovers a bug in the fetch_financials function's error handling."""

@@ -8,7 +8,7 @@ def main():
     stock_symbols = input("Enter any of 5 stock symbols separated by commas: ").upper()   
     stock_symbols = stock_symbols.split(",")
     stock_symbols = [symbol.strip() for symbol in stock_symbols]
-    while len(stock_symbols) != 5:
+    while len(stock_symbols) != 5 & stock_symbols:
         stock_symbols = input("Please enter exactly 5 stock symbols.")
         stock_symbols = stock_symbols.split(",")
         stock_symbols = [symbol.strip() for symbol in stock_symbols]
