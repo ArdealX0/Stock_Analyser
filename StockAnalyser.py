@@ -12,9 +12,9 @@ def main():
     investment_amount = float(input("Enter your investment amount (in CAD$): $"))
 
     risk_tolerance = input("Enter your risk tolerance (low, medium, high): ").lower()
-    if risk_tolerance not in ["low", "medium", "high"]:
+    while risk_tolerance not in ["low", "medium", "high"]:
         print("Invalid risk tolerance. Please enter 'low', 'medium', or 'high'.")
-        return
+        risk_tolerance = input("Enter your risk tolerance (low, medium, high): ").lower()
 
     stocks = []
 
