@@ -1,5 +1,6 @@
 from StockClass import Stock
 import google.generativeai as genai
+from StockDataFetcher import validate_ticker
 
 def main():
     print("Initializing Stock Analyzer...")
@@ -8,13 +9,13 @@ def main():
     stock_symbols = input("Enter any of 5 stock symbols separated by commas: ").upper()   
     stock_symbols = stock_symbols.split(",")
     stock_symbols = [symbol.strip() for symbol in stock_symbols]
-    while len(stock_symbols) != 5 & stock_symbols:
+    while len(stock_symbols) != 5 and stock_symbols:
         stock_symbols = input("Please enter exactly 5 stock symbols.")
         stock_symbols = stock_symbols.split(",")
         stock_symbols = [symbol.strip() for symbol in stock_symbols]
     
     investment_amount = float(input("Enter your investment amount (in CAD$): $"))
-    while investment_amount <= 0 & type(investment_amount) != float:
+    while investment_amount <= 0 and type(investment_amount) != float:
         investment_amount = input("Please enter a valid investment amount (in CAD$): $")
 
     risk_tolerance = input("Enter your risk tolerance (low, medium, high): ").lower()
@@ -39,10 +40,39 @@ def main():
     print("\nExiting Stock Analyzer...")
 
 
-def create_portfolio(stocks, investment_amount, risk_tolerance, api_key="AIzaSyACI6oQ57KxFUaptHV9-S5RNsDnG8VFR5s"):
+def validate_stocks_data(stocks):
+    """Validate that all stocks have valid data."""
+    for stock in stocks:
+        # Check if the stock has a valid symbol
+        if validate_ticker(stock.symbol) is False:
+            return False, f"Invalid symbol for stock: {stock.symbol}"
+        
+        # Check if the stock has a valid current price (price and change)
+        price, change = stock.get_current_price()
+        if price is None or change is None or not isinstance(price, (int, float)) or not isinstance(change, (int, float)):
+            return False, f"Invalid price data for stock: {stock.symbol}"
+        
+        # Check if the stock has valid financial data
+        financials = stock.get_financials()
+        if not financials or not isinstance(financials, dict):
+            return False, f"Invalid financial data for stock: {stock.symbol}"
+        
+        # Check if the stock has valid sentiment data
+        sentiment = stock.get_sentiment()
+        if not sentiment or not isinstance(sentiment, dict):
+            return False, f"Invalid sentiment data for stock: {stock.symbol}"
+
+
+def create_portfolio(stocks, investment_amount, risk_tolerance):
+
+    #Validate stocks data
+    valid, message = validate_stocks_data(stocks)
+    if not valid:
+        print(f"Error: {message}")
+        return
     
     # Configure the API key
-    genai.configure(api_key)
+    genai.configure(api_key="AIzaSyACI6oQ57KxFUaptHV9-S5RNsDnG8VFR5s")
     
     # Create a model instance
     model = genai.GenerativeModel('gemini-1.5-flash')
