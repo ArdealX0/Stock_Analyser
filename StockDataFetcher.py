@@ -36,7 +36,7 @@ def fetch_financials(ticker):
         return {"error": f"Error fetching financial data for {ticker}: {str(e)}"}
 
 def fetch_real_time_price(ticker):
-    API_KEY = 'QOQY4RBGGJSSQT87'
+    API_KEY = 'JO0S5X6MQ5BRM9G3'
     
     try:
         url = f'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={ticker}&apikey={API_KEY}'
