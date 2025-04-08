@@ -6,7 +6,7 @@ def main():
     print("Initializing Stock Analyzer...")
     
     # Initialize the StockAnalyzer class with a list of stock symbols
-    stock_symbols = input("Enter any of 5 stock symbols separated by commas: ").upper()   
+    stock_symbols = input("\nEnter any of 5 stock symbols separated by commas: ").upper()   
     stock_symbols = stock_symbols.split(",")
     stock_symbols = [symbol.strip() for symbol in stock_symbols]
     while len(stock_symbols) != 5 and stock_symbols:
@@ -14,13 +14,12 @@ def main():
         stock_symbols = stock_symbols.split(",")
         stock_symbols = [symbol.strip() for symbol in stock_symbols]
     
-    investment_amount = float(input("Enter your investment amount (in CAD$): $"))
+    investment_amount = float(input("\nEnter your investment amount (in CAD$): $"))
     while investment_amount <= 0 and type(investment_amount) != float:
         investment_amount = input("Please enter a valid investment amount (in CAD$): $")
 
-    risk_tolerance = input("Enter your risk tolerance (low, medium, high): ").lower()
+    risk_tolerance = input("\nEnter your risk tolerance (low, medium, high): ").lower()
     while risk_tolerance not in ["low", "medium", "high"]:
-        print("Invalid risk tolerance. Please enter 'low', 'medium', or 'high'.")
         risk_tolerance = input("Enter your risk tolerance (low, medium, high): ").lower()
 
     stocks = []
